@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Qualité - Boutique Officielle</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=AV8_jzI31TqLmVH5J7mr6Q&currency=EUR"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("blackqualite"); // ID EmailJS test
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f1ec;
+            color: #333;
+        }
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        nav a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
+        }
+        .hero {
+            background: url('https://via.placeholder.com/1500x600') no-repeat center center/cover;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+        }
+        .products {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .product {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .product img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .product h3 {
+            margin: 1rem 0 0.5rem;
+        }
+        .product button {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #cart {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            width: 300px;
+            display: none;
+        }
+        #cart h2 {
+            margin-top: 0;
+        }
+        .cart-item {
+            margin-bottom: 0.5rem;
+        }
+        .show-cart {
+            display: block !important;
+        }
+        .cart-icon {
+            cursor: pointer;
+        }
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">BLACKQUALITÉ</div>
+        <nav>
+            <a href="#">Accueil</a>
+            <a href="#">Boutique</a>
+            <a href="#">Édition Limitée</a>
+            <a href="#">Contact</a>
+            <a class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i></a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Collection Marrakech - Édition Limitée</h1>
+    </section>
+
+    <section class="products">
+        <div class="product">
+            <img src="https://via.placeholder.com/300x400" alt="T-shirt Black Qualité">
+            <h3>T-shirt Marrakech</h3>
+            <p>29,99 €</p>
+            <button onclick="addToCart('T-shirt Marrakech', 29.99)">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="https://via.placeholder.com/300x400" alt="Sweat Black Qualité">
+            <h3>Sweat Édition Limitée</h3>
+            <p>59,99 €</p>
+            <button onclick="addToCart('Sweat Édition Limitée', 59.99)">Ajouter au panier</button>
+        </div>
+    </section>
+
+    <div id="cart">
+        <h2>Panier</h2>
+        <div id="cart-items"></div>
+        <p><strong>Total : </strong><span id="cart-total">0.00</span> €</p>
+        <div id="paypal-button-container"></div>
+    </div>
+
+    <footer>
+        &copy; 2025 BLACKQUALITÉ. Tous droits réservés.
+    </footer>
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('cart-item');
+                div.textContent = `${item.name} - ${item.price.toFixed(2)} €`;
+                cartItems.appendChild(div);
+                total += item.price;
+            });
+            cartTotal.textContent = total.toFixed(2);
+
+            renderPayPalButton(total);
+        }
+
+        function toggleCart() {
+            const cartElement = document.getElementById('cart');
+            cartElement.classList.toggle('show-cart');
+        }
+
+        function renderPayPalButton(amount) {
+            if (!document.getElementById('paypal-button-container')) return;
+            document.getElementById('paypal-button-container').innerHTML = '';
+
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: amount.toFixed(2)
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        alert('Merci ' + details.payer.name.given_name + ' pour votre achat !');
+
+                        emailjs.send("blackqualite", "blackqualite", {
+                            user_name: details.payer.name.given_name,
+                            user_email: details.payer.email_address,
+                            message: "Merci pour votre achat chez BLACKQUALITÉ.",
+                            total: amount.toFixed(2),
+                            items: cart.map(item => `${item.name} — ${item.price.toFixed(2)} €`).join('\n')
+                        }).then(function(response) {
+                            console.log("Email envoyé !", response.status, response.text);
+                        }, function(error) {
+                            console.error("Erreur envoi email : ", error);
+                        });
+
+                        cart = [];
+                        updateCart();
+                    });
+                }
+            }).render('#paypal-button-container');
+        }
+    </script>
+</body>
+</html>
